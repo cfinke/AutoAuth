@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<dialog id="commonDialog">
+		<stringbundleset>
+			<stringbundle id="autoauth-bundle" src="chrome://autoauth/locale/locale.properties" />
+		</stringbundleset>
+	</dialog>
+	<script type="application/x-javascript">
+		<![CDATA[
+		
+		var AUTOAUTH = {
+			get strings() { return document.getElementById("autoauth-bundle"); },
+			
+			autoAccept : function () {
+				if (document.getElementById("loginTextbox") && document.getElementById("password1Textbox")){
+					if (!document.getElementById("loginContainer").hidden){
+						if ((document.getElementById("loginTextbox").getAttribute("value") != '') && (document.getElementById("password1Textbox").getAttribute("value") != '')){
+							commonDialogOnAccept();
+							window.close();
+						}
+						else {
+							var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"];
+
+							if (passwordManager != null) {
+								passwordManager = passwordManager.createInstance();
+								var matches = document.getElementById("info.box").getElementsByTagName("description")[0].firstChild.nodeValue.match(/(https?):\/\/([a-z0-9\.-]+)(:([0-9]+))?$/i);
+								var protocol = matches[1];
+								var host = matches[2];
+								var port = matches[4];
+							
+								if (!port) {
+									if (protocol == 'https') {
+										port = 443;
+									} else {
+										port = 80;
+									}
+								}
+							
+								var possibleMatches = [];
+								var hostREs = [];
+							
+								var hostParts = host.split('.');
+								hostParts.shift();
+							
+								while (hostParts.length > 1) {
+									var hostRE = hostParts.join("\.");
+									hostRE = hostRE.replace(/-/g, "\-");
+								
+									hostREs.push(hostRE);
+								
+									hostParts.shift();
+									possibleMatches.push([]);
+								}
+								
+								if (showList) {
+									var box = document.createElement("hbox");
+				
+									var button = document.createElement("button");
+									button.setAttribute("label", this.strings.getString("autoauth.autoFillWith"));
+									button.setAttribute("onclick",'AUTOAUTH.fillIn(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
+				
+									var list = document.createElement("menulist");
+									list.setAttribute("id","autoauth-list");
+									var popup = document.createElement("menupopup");
+									var done = false;
+								
+									for (var i = 0; i < possibleMatches.length; i++){
+										for (var j = 0; j < possibleMatches[i].length; j++){
+											var item = document.createElement("menuitem");
+											item.setAttribute("label", possibleMatches[i][j].username + "@" + possibleMatches[i][j].host);
+											item.username = possibleMatches[i][j].username;
+											item.password = possibleMatches[i][j].password;
+					
+											popup.appendChild(item);
+										
+											done = true;
+										}
+									
+										if (done) break;
+									}
+				
+									list.appendChild(popup);
+									box.appendChild(button);
+									box.appendChild(list);
+				
+									document.getElementById("loginContainer").parentNode.appendChild(box);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			fillIn : function (username, password) {
+				document.getElementById("loginTextbox").value = username;
+				document.getElementById("password1Textbox").value = password;
+				document.getElementById("checkbox").checked = true;
+				onCheckboxClick(document.getElementById("checkbox"));
+				
+				commonDialogOnAccept();
+				window.close();
+			},
+		};
+		
+		window.addEventListener("load", function () { AUTOAUTH.autoAccept(); }, false);		
+		
+		]]>
+	</script>
+</overlay>
