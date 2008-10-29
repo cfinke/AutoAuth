@@ -11,23 +11,31 @@
 		var AUTOAUTH = {
 			get strings() { return document.getElementById("autoauth-bundle"); },
 			
+			lastAuth : 0,
+			prefs : Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.autoAuth."),
+			
 			autoAccept : function () {
+				if ( Math.round(new Date().getTime() / 1000) - this.prefs.getIntPref("lastAuth") <= 3) {
+					return;
+				} 
+				
 				if (document.getElementById("loginTextbox") && document.getElementById("password1Textbox")){
 					if (!document.getElementById("loginContainer").hidden){
 						if ((document.getElementById("loginTextbox").getAttribute("value") != '') && (document.getElementById("password1Textbox").getAttribute("value") != '')){
+							this.prefs.setIntPref("lastAuth", Math.round(new Date().getTime() / 1000));
 							commonDialogOnAccept();
+							
 							window.close();
 						}
 						else {
 							var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"];
 
 							if (passwordManager != null) {
-								passwordManager = passwordManager.createInstance();
 								var matches = document.getElementById("info.box").getElementsByTagName("description")[0].firstChild.nodeValue.match(/(https?):\/\/([a-z0-9\.-]+)(:([0-9]+))?$/i);
 								var protocol = matches[1];
 								var host = matches[2];
 								var port = matches[4];
-							
+
 								if (!port) {
 									if (protocol == 'https') {
 										port = 443;
@@ -35,21 +43,46 @@
 										port = 80;
 									}
 								}
-							
+
 								var possibleMatches = [];
 								var hostREs = [];
-							
+
 								var hostParts = host.split('.');
 								hostParts.shift();
-							
+
 								while (hostParts.length > 1) {
 									var hostRE = hostParts.join("\.");
 									hostRE = hostRE.replace(/-/g, "\-");
-								
+
 									hostREs.push(hostRE);
-								
+
 									hostParts.shift();
 									possibleMatches.push([]);
+								}
+
+								passwordManager = passwordManager.createInstance();
+								passwordManager.QueryInterface(Components.interfaces.nsIPasswordManager);
+
+								var enumerator = passwordManager.enumerator;
+								var nextPassword, host, username, password;
+								var showList = false;
+
+								passwordEntries : while(enumerator.hasMoreElements()) {
+									try {
+										nextPassword = enumerator.getNext().QueryInterface(Components.interfaces.nsIPassword);
+
+										if (nextPassword.host.indexOf("://") == -1){
+											for (var i = 0; i < hostREs.length; i++){
+												if (nextPassword.host.match(hostREs[i])){
+													var host = nextPassword.host;//.split('//')[1];
+													possibleMatches[i].push({ 'username' : nextPassword.user, 'password' : nextPassword.password, 'host' : host.split(" ")[0] });
+													var showList = true;
+													continue passwordEntries;
+												}
+											}
+										}	
+									} catch (e) {
+									}
 								}
 								
 								if (showList) {
@@ -99,7 +132,7 @@
 				
 				commonDialogOnAccept();
 				window.close();
-			},
+			}
 		};
 		
 		window.addEventListener("load", function () { AUTOAUTH.autoAccept(); }, false);		

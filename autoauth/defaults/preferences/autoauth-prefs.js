@@ -1,0 +1,1 @@
+pref("extensions.autoAuth.lastAuth", 0);
