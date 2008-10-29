@@ -5,24 +5,30 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="autoauth@efinke.com"
                    em:name="AutoAuth"
-                   em:version="1.2.3"
+                   em:version="1.3"
                    em:description="Automatically submits saved HTTP authentication credentials."
                    em:creator="Christopher Finke"
                    em:homepageURL="http://www.chrisfinke.com/addons/autoauth/">
     <em:targetApplication RDF:resource="rdf:#$YjkeF3"/>
     <em:targetApplication RDF:resource="rdf:#$1kkeF3"/>
     <em:targetApplication RDF:resource="rdf:#$1lkeF3"/>
+    <em:targetApplication RDF:resource="rdf:#$1jkeF3"/>
   </RDF:Description>
   <RDF:Description RDF:about="rdf:#$YjkeF3"
                    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    em:minVersion="2.0"
-                   em:maxVersion="3.0.*" />
+                   em:maxVersion="3.1b2pre" />
   <RDF:Description RDF:about="rdf:#$1kkeF3"
                    em:id="{a463f10c-3994-11da-9945-000d60ca027b}"
                    em:minVersion="1.0"
-                   em:maxVersion="1.2.*" />
+                   em:maxVersion="2.*" />
   <RDF:Description RDF:about="rdf:#$1lkeF3"
                    em:id="{3550f703-e582-4d05-9a08-453d09bdfdc6}"
                    em:minVersion="2.0"
                    em:maxVersion="3.0a1" />
+  <RDF:Description RDF:about="rdf:#$1jkeF3"
+                   em:id="{a23983c0-fd0e-11dc-95ff-0800200c9a66}"
+                   em:minVersion="0.8"
+                   em:maxVersion="1.0.*" />
+
 </RDF:RDF>
