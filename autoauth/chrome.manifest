@@ -1,13 +1,23 @@
 content     autoauth     jar:chrome/autoauth.jar!/content/
 
+locale		autoauth	ar		jar:chrome/autoauth.jar!/locale/ar/
 locale		autoauth	bg-BG	jar:chrome/autoauth.jar!/locale/bg-BG/
+locale		autoauth	ca-AD		jar:chrome/autoauth.jar!/locale/ca-AD/
+locale		autoauth	de-DE		jar:chrome/autoauth.jar!/locale/de-DE/
 locale		autoauth	en-US	jar:chrome/autoauth.jar!/locale/en-US/
 locale		autoauth	es-ES	jar:chrome/autoauth.jar!/locale/es-ES/
+locale		autoauth	fi-FI		jar:chrome/autoauth.jar!/locale/fi-FI/
 locale		autoauth	fr-FR	jar:chrome/autoauth.jar!/locale/fr-FR/
 locale		autoauth	hu-HU	jar:chrome/autoauth.jar!/locale/hu-HU/
 locale		autoauth	it-IT	jar:chrome/autoauth.jar!/locale/it-IT/
 locale		autoauth	ja-JP	jar:chrome/autoauth.jar!/locale/ja-JP/
 locale		autoauth	nl-NL	jar:chrome/autoauth.jar!/locale/nl-NL/
+locale		autoauth	pt-BR		jar:chrome/autoauth.jar!/locale/pt-BR/
 locale		autoauth	pt-PT	jar:chrome/autoauth.jar!/locale/pt-PT/
+locale		autoauth	sk-SK		jar:chrome/autoauth.jar!/locale/sk-SK/
+locale		autoauth	tr-TR		jar:chrome/autoauth.jar!/locale/tr-TR/
+locale		autoauth	uk-UA		jar:chrome/autoauth.jar!/locale/uk-UA/
+locale		autoauth	zh-CN		jar:chrome/autoauth.jar!/locale/zh-CN/
+locale		autoauth	zh-TW		jar:chrome/autoauth.jar!/locale/zh-TW/
 
 overlay     chrome://global/content/commonDialog.xul                chrome://autoauth/content/overlay.xul
