@@ -23,7 +23,12 @@
 					if (!document.getElementById("loginContainer").hidden){
 						if ((document.getElementById("loginTextbox").getAttribute("value") != '') && (document.getElementById("password1Textbox").getAttribute("value") != '')){
 							this.prefs.setIntPref("lastAuth", Math.round(new Date().getTime() / 1000));
-							commonDialogOnAccept();
+							if (typeof commonDialogOnAccept != 'undefined') {
+								commonDialogOnAccept();
+							}
+							else {
+								document.getElementById("commonDialog").acceptDialog();
+							}
 							
 							window.close();
 						}
