@@ -3,7 +3,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>autoauth@efinke.com</em:id>
 		<em:name>AutoAuth</em:name>
-		<em:version>2.0pre</em:version>
+		<em:version>2.0</em:version>
 		<em:description>Automatically submits saved HTTP authentication credentials.</em:description>
 		<em:creator>Christopher Finke</em:creator>
 		<em:homepageURL>http://www.chrisfinke.com/addons/autoauth/</em:homepageURL>
