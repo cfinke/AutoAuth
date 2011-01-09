@@ -1,1 +1,1 @@
-pref("extensions.autoAuth.lastAuth", 0);
+pref("extensions.autoAuth.lastAuthJSON", "{}");

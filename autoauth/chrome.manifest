@@ -23,4 +23,4 @@ locale        autoauth    zh-CN    chrome/locale/zh-CN/
 locale        autoauth    zh-TW    chrome/locale/zh-TW/
 
 overlay     chrome://global/content/commonDialog.xul  chrome://autoauth/content/overlay.xul
-overlay     chrome://browser/content/browser.xul      chrome://autoauth/content/overlay-fennec.xul application={a23983c0-fd0e-11dc-95ff-0800200c9a66}
+overlay     chrome://browser/content/browser.xul      chrome://autoauth/content/overlay-mobile.xul application={a23983c0-fd0e-11dc-95ff-0800200c9a66}
