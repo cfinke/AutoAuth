@@ -1,5 +1,7 @@
 content     autoauth     chrome/content/
 
+content autoauth-default-locale chrome/locale/en-US/
+
 locale        autoauth    ar       chrome/locale/ar/
 locale        autoauth    bg-BG    chrome/locale/bg-BG/
 locale        autoauth    ca-AD    chrome/locale/ca-AD/

@@ -1,17 +1,75 @@
 var AUTOAUTH = {
-	get strings() { return document.getElementById("autoauth-bundle"); },
+	strings : {
+		_backup : null,
+		_main : null,
+
+		initStrings : function () {
+			if (!this._backup) { this._backup = document.getElementById("autoauth-backup-bundle"); }
+			if (!this._main) { this._main = document.getElementById("autoauth-bundle"); }
+		},
+
+		getString : function (key) {
+			this.initStrings();
+
+			var rv = "";
+
+			try {
+				rv = this._main.getString(key);
+			} catch (e) {
+			}
+
+			if (!rv) {
+				try {
+					rv = this._backup.getString(key);
+				} catch (e) {
+				}
+			}
+
+			return rv;
+		},
+
+		getFormattedString : function (key, args) {
+			this.initStrings();
+
+			var rv = "";
+
+			try {
+				rv = this._main.getFormattedString(key, args);
+			} catch (e) {
+			}
+
+			if (!rv) {
+				try {
+					rv = this._backup.getFormattedString(key, args);
+				} catch (e) {
+				}
+			}
+
+			return rv;
+		}
+	},
 	
 	lastAuth : 0,
 	prefs : Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.autoAuth."),
 	
 	load : function () {
-		window.addEventListener("DOMWillOpenModalDialog", AUTOAUTH.handleEvent, true);
+		removeEventListener("load", AUTOAUTH.load, false);
+		
+		addEventListener("DOMWillOpenModalDialog", AUTOAUTH.handleEvent, true);
+		
+		addEventListener("unload", AUTOAUTH.unload, false);
+	},
+	
+	unload : function () {
+		removeEventListener("unload", AUTOAUTH.unload, false);
+		
+		removeEventListener("DOMWillOpenModalDialog", AUTOAUTH.handleEvent, true);
 	},
 	
 	handleEvent : function (e) {
 		switch (e.type) {
 			case "DOMWillOpenModalDialog":
-				setTimeout(function(e) { AUTOAUTH.autoAccept(); }, 500);
+				setTimeout(AUTOAUTH.autoAccept, 500);
 			break;
 		}
 	},
@@ -34,5 +92,3 @@ var AUTOAUTH = {
 		consoleService.logStringMessage("AUTOAUTH: " + m);
 	}
 };
-
-addEventListener("load", AUTOAUTH.load, true);
