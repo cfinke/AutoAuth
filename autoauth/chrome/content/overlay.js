@@ -123,9 +123,24 @@ var AUTOAUTH = {
 		removeEventListener("load", AUTOAUTH.load, false);
 		
 		var now = Math.round(new Date().getTime() / 1000);
-		var args = window.arguments[0].QueryInterface(Ci.nsIWritablePropertyBag2).QueryInterface(Ci.nsIWritablePropertyBag);
 		
-		var authKey = btoa(args.getProperty("text"));
+		try {
+			var args = window.arguments[0].QueryInterface(Ci.nsIWritablePropertyBag2).QueryInterface(Ci.nsIWritablePropertyBag);
+			var authKey = args.getProperty("text");
+			
+			if (args.getProperty("promptType") != "promptUserAndPass") {
+				return;
+			}
+		} catch (e) {
+			// Firefox < 4
+			var args = window.arguments[0].QueryInterface(Ci.nsIDialogParamBlock);
+			var authKey = args.GetString(0);
+			
+			if (args.GetInt(3) != 2 || args.GetInt(4) == 1) {
+				return;
+			}
+		}
+		
 		
 		var lastAuthJSON = AUTOAUTH.lastAuthJSON;
 		
@@ -133,116 +148,114 @@ var AUTOAUTH = {
 			return;
 		}
 		
-		if (args.getProperty("promptType") == "promptUserAndPass") {
-			if ((document.getElementById("loginTextbox").getAttribute("value") != '') && (document.getElementById("password1Textbox").getAttribute("value") != '')){
-				lastAuthJSON[authKey] = now;
-				AUTOAUTH.prefs.setCharPref("lastAuthJSON", JSON.stringify(lastAuthJSON));
-				
-				if (typeof commonDialogOnAccept != 'undefined') {
-					commonDialogOnAccept();
-				}
-				else {
-					document.getElementById("commonDialog").acceptDialog();
-				}
-				
-				window.close();
+		if ((document.getElementById("loginTextbox").getAttribute("value") != '') && (document.getElementById("password1Textbox").getAttribute("value") != '')){
+			lastAuthJSON[authKey] = now;
+			AUTOAUTH.prefs.setCharPref("lastAuthJSON", JSON.stringify(lastAuthJSON));
+			
+			if (typeof commonDialogOnAccept != 'undefined') {
+				commonDialogOnAccept();
 			}
-			/*
 			else {
-				var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"];
+				document.getElementById("commonDialog").acceptDialog();
+			}
+			
+			window.close();
+		}
+		/*
+		else {
+			var passwordManager = Components.classes["@mozilla.org/passwordmanager;1"];
 
-				if (passwordManager != null) {
-					var matches = document.getElementById("info.box").getElementsByTagName("description")[0].firstChild.nodeValue.match(/(https?):\/\/([a-z0-9\.-]+)(:([0-9]+))?$/i);
-					var protocol = matches[1];
-					var host = matches[2];
-					var port = matches[4];
+			if (passwordManager != null) {
+				var matches = document.getElementById("info.box").getElementsByTagName("description")[0].firstChild.nodeValue.match(/(https?):\/\/([a-z0-9\.-]+)(:([0-9]+))?$/i);
+				var protocol = matches[1];
+				var host = matches[2];
+				var port = matches[4];
 
-					if (!port) {
-						if (protocol == 'https') {
-							port = 443;
-						} else {
-							port = 80;
-						}
-					}
-
-					var possibleMatches = [];
-					var hostREs = [];
-
-					var hostParts = host.split('.');
-					hostParts.shift();
-
-					while (hostParts.length > 1) {
-						var hostRE = hostParts.join("\.");
-						hostRE = hostRE.replace(/-/g, "\-");
-
-						hostREs.push(hostRE);
-
-						hostParts.shift();
-						possibleMatches.push([]);
-					}
-
-					passwordManager = passwordManager.createInstance();
-					passwordManager.QueryInterface(Components.interfaces.nsIPasswordManager);
-
-					var enumerator = passwordManager.enumerator;
-					var nextPassword, host, username, password;
-					var showList = false;
-
-					passwordEntries : while(enumerator.hasMoreElements()) {
-						try {
-							nextPassword = enumerator.getNext().QueryInterface(Components.interfaces.nsIPassword);
-
-							if (nextPassword.host.indexOf("://") == -1){
-								for (var i = 0; i < hostREs.length; i++){
-									if (nextPassword.host.match(hostREs[i])){
-										var host = nextPassword.host;//.split('//')[1];
-										possibleMatches[i].push({ 'username' : nextPassword.user, 'password' : nextPassword.password, 'host' : host.split(" ")[0] });
-										var showList = true;
-										continue passwordEntries;
-									}
-								}
-							}	
-						} catch (e) {
-						}
-					}
-					
-					if (showList) {
-						var box = document.createElement("hbox");
-	
-						var button = document.createElement("button");
-						button.setAttribute("label", AUTOAUTH.strings.getString("autoauth.autoFillWith"));
-						button.setAttribute("onclick",'AUTOAUTH.fillIn(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
-	
-						var list = document.createElement("menulist");
-						list.setAttribute("id","autoauth-list");
-						var popup = document.createElement("menupopup");
-						var done = false;
-					
-						for (var i = 0; i < possibleMatches.length; i++){
-							for (var j = 0; j < possibleMatches[i].length; j++){
-								var item = document.createElement("menuitem");
-								item.setAttribute("label", possibleMatches[i][j].username + "@" + possibleMatches[i][j].host);
-								item.username = possibleMatches[i][j].username;
-								item.password = possibleMatches[i][j].password;
-		
-								popup.appendChild(item);
-							
-								done = true;
-							}
-						
-							if (done) break;
-						}
-	
-						list.appendChild(popup);
-						box.appendChild(button);
-						box.appendChild(list);
-	
-						document.getElementById("loginContainer").parentNode.appendChild(box);
+				if (!port) {
+					if (protocol == 'https') {
+						port = 443;
+					} else {
+						port = 80;
 					}
 				}
+
+				var possibleMatches = [];
+				var hostREs = [];
+
+				var hostParts = host.split('.');
+				hostParts.shift();
+
+				while (hostParts.length > 1) {
+					var hostRE = hostParts.join("\.");
+					hostRE = hostRE.replace(/-/g, "\-");
+
+					hostREs.push(hostRE);
+
+					hostParts.shift();
+					possibleMatches.push([]);
+				}
+
+				passwordManager = passwordManager.createInstance();
+				passwordManager.QueryInterface(Components.interfaces.nsIPasswordManager);
+
+				var enumerator = passwordManager.enumerator;
+				var nextPassword, host, username, password;
+				var showList = false;
+
+				passwordEntries : while(enumerator.hasMoreElements()) {
+					try {
+						nextPassword = enumerator.getNext().QueryInterface(Components.interfaces.nsIPassword);
+
+						if (nextPassword.host.indexOf("://") == -1){
+							for (var i = 0; i < hostREs.length; i++){
+								if (nextPassword.host.match(hostREs[i])){
+									var host = nextPassword.host;//.split('//')[1];
+									possibleMatches[i].push({ 'username' : nextPassword.user, 'password' : nextPassword.password, 'host' : host.split(" ")[0] });
+									var showList = true;
+									continue passwordEntries;
+								}
+							}
+						}	
+					} catch (e) {
+					}
+				}
+				
+				if (showList) {
+					var box = document.createElement("hbox");
+
+					var button = document.createElement("button");
+					button.setAttribute("label", AUTOAUTH.strings.getString("autoauth.autoFillWith"));
+					button.setAttribute("onclick",'AUTOAUTH.fillIn(document.getElementById("autoauth-list").selectedItem.username, document.getElementById("autoauth-list").selectedItem.password);');
+
+					var list = document.createElement("menulist");
+					list.setAttribute("id","autoauth-list");
+					var popup = document.createElement("menupopup");
+					var done = false;
+				
+					for (var i = 0; i < possibleMatches.length; i++){
+						for (var j = 0; j < possibleMatches[i].length; j++){
+							var item = document.createElement("menuitem");
+							item.setAttribute("label", possibleMatches[i][j].username + "@" + possibleMatches[i][j].host);
+							item.username = possibleMatches[i][j].username;
+							item.password = possibleMatches[i][j].password;
+	
+							popup.appendChild(item);
+						
+							done = true;
+						}
+					
+						if (done) break;
+					}
+
+					list.appendChild(popup);
+					box.appendChild(button);
+					box.appendChild(list);
+
+					document.getElementById("loginContainer").parentNode.appendChild(box);
+				}
 			}
-			*/
 		}
+		*/
 	},
 	
 	log : function (msg) {
